@@ -39,6 +39,10 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
     withSourcesJar()
+
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(16))
+    }
 }
 
 jar {
