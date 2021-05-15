@@ -1,4 +1,4 @@
-package me.hydos.quiltlangrust;
+package dev.vriska.quiltlangjs;
 
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class QuiltLangRust {
+public class QuiltLangJS {
 
     public static final String MODID = "quilt_lang_rust";
     public static final File NATIVES_DIR = new File(FabricLoader.getInstance().getGameDir().toAbsolutePath() + "/natives");
@@ -17,10 +17,10 @@ public class QuiltLangRust {
     /**
      * Load's the rust side of the language adapter.
      */
-    public static void tryLoadRust() {
+    public static void tryLoadJS() {
         if (!isLoaded) {
-            Path extractedNativeLoc = new File(NATIVES_DIR, "libQuiltLangRust" + getPlatformSuffix()).toPath();
-            Path nativeInJar = FabricLoader.getInstance().getModContainer(MODID).orElseThrow().getPath(getPlatformFolder() + "libQuiltLangRust" + getPlatformSuffix());
+            Path extractedNativeLoc = new File(NATIVES_DIR, "libQuiltLangJS" + getPlatformSuffix()).toPath();
+            Path nativeInJar = FabricLoader.getInstance().getModContainer(MODID).orElseThrow().getPath(getPlatformFolder() + "libQuiltLangJS" + getPlatformSuffix());
             try {
                 Files.deleteIfExists(extractedNativeLoc);
                 Files.createDirectories(Paths.get(String.valueOf(NATIVES_DIR)));

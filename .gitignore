@@ -11,3 +11,5 @@ QuiltMod/logs
 QuiltMod/natives
 QuiltMod/mods
 .gradle
+build
+run

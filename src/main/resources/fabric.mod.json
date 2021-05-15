@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "id": "quilt_lang_rust",
+  "id": "quilt_lang_js",
   "version": "${version}",
-  "name": "Quilt Language Rust",
-  "description": "Rust Language support for modding",
+  "name": "Quilt Language JS",
+  "description": "JS support for modding",
   "authors": [
-    "hydos"
+    "leo60228"
   ],
   "contact": {
-    "website": "https://why would you even want this.com"
+    "website": "https://vriska.dev"
   },
   "license": "MIT",
-  "icon": "assets/QuiltLangRust/icon.png",
+  "icon": "assets/QuiltLangJS/icon.png",
   "environment": "*",
   "languageAdapters": {
-    "rust": "me.hydos.quiltlangrust.RustLangAdapter"
+    "js": "dev.vriska.quiltlangjs.JSLangAdapter"
   },
   "mixins": [
-    "QuiltLangRust.mixins.json"
+    "QuiltLangJS.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.11.3",

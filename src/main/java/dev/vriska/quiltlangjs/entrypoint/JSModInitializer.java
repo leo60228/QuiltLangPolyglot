@@ -1,10 +1,10 @@
-package me.hydos.quiltlangrust.entrypoint;
+package dev.vriska.quiltlangjs.entrypoint;
 
 import net.fabricmc.api.ModInitializer;
 
-public class RustModInitializer extends RustNativeInitializer implements ModInitializer {
+public class JSModInitializer extends JSNativeInitializer implements ModInitializer {
 
-    public RustModInitializer(String libName, String modid) {
+    public JSModInitializer(String libName, String modid) {
         super(libName, modid);
     }
 

@@ -1,13 +1,13 @@
-package me.hydos.quiltlangrust;
+package dev.vriska.quiltlangjs;
 
-import me.hydos.quiltlangrust.entrypoint.RustClientModInitializer;
-import me.hydos.quiltlangrust.entrypoint.RustDedicatedServerModInitializer;
-import me.hydos.quiltlangrust.entrypoint.RustModInitializer;
+import dev.vriska.quiltlangjs.entrypoint.JSClientModInitializer;
+import dev.vriska.quiltlangjs.entrypoint.JSDedicatedServerModInitializer;
+import dev.vriska.quiltlangjs.entrypoint.JSModInitializer;
 import net.fabricmc.loader.api.LanguageAdapter;
 import net.fabricmc.loader.api.LanguageAdapterException;
 import net.fabricmc.loader.api.ModContainer;
 
-public class RustLangAdapter implements LanguageAdapter {
+public class JSLangAdapter implements LanguageAdapter {
 
     public static final String FILE_SUFFIX = System.getProperty("os.name").contains("Win") ? ".dll" : ".so";
 
@@ -16,16 +16,16 @@ public class RustLangAdapter implements LanguageAdapter {
         String libName = entrypointName + FILE_SUFFIX;
         String modid = mod.getMetadata().getId();
 
-        QuiltLangRust.tryLoadRust();
+        QuiltLangJS.tryLoadJS();
         switch (type.getSimpleName()) {
             case "ModInitializer" -> {
-                return type.cast(new RustModInitializer(libName, modid));
+                return type.cast(new JSModInitializer(libName, modid));
             }
             case "ClientModInitializer" -> {
-                return type.cast(new RustClientModInitializer(libName, modid));
+                return type.cast(new JSClientModInitializer(libName, modid));
             }
             case "DedicatedServerModInitializer" -> {
-                return type.cast(new RustDedicatedServerModInitializer(libName, modid));
+                return type.cast(new JSDedicatedServerModInitializer(libName, modid));
             }
             default -> throw new LanguageAdapterException("Can't handle initializer of type: " + type.getSimpleName());
         }

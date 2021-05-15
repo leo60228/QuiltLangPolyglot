@@ -1,10 +1,10 @@
-package me.hydos.quiltlangrust.entrypoint;
+package dev.vriska.quiltlangjs.entrypoint;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 
-public class RustDedicatedServerModInitializer extends RustNativeInitializer implements DedicatedServerModInitializer{
+public class JSDedicatedServerModInitializer extends JSNativeInitializer implements DedicatedServerModInitializer{
 
-    public RustDedicatedServerModInitializer(String libName, String modid) {
+    public JSDedicatedServerModInitializer(String libName, String modid) {
         super(libName, modid);
     }
 
