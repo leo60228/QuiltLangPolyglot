@@ -2,16 +2,15 @@ package dev.vriska.quiltlangjs.entrypoint;
 
 import net.fabricmc.api.ModInitializer;
 import java.io.File;
+import java.io.IOException;
 
-public class JSModInitializer implements ModInitializer {
-    public final File source;
-
-    public JSModInitializer(File source) {
-        this.source = source;
+public class JSModInitializer extends JSPolyglotInitializer implements ModInitializer {
+    public JSModInitializer(File source) throws IOException {
+        super(source);
     }
 
     @Override
     public void onInitialize() {
-        System.out.println("initializing JS mod");
+        callJS("onInitialize");
     }
 }

@@ -7,6 +7,7 @@ import net.fabricmc.loader.api.LanguageAdapter;
 import net.fabricmc.loader.api.LanguageAdapterException;
 import net.fabricmc.loader.api.ModContainer;
 import java.io.File;
+import java.io.IOException;
 
 public class JSLangAdapter implements LanguageAdapter {
     public static final String FILE_SUFFIX = System.getProperty("os.name").contains("Win") ? ".dll" : ".so";
@@ -18,17 +19,21 @@ public class JSLangAdapter implements LanguageAdapter {
 
         File source = mod.getPath(entrypointName).toFile();
 
-        switch (type.getSimpleName()) {
-            case "ModInitializer" -> {
-                return type.cast(new JSModInitializer(source));
+        try {
+            switch (type.getSimpleName()) {
+                case "ModInitializer" -> {
+                    return type.cast(new JSModInitializer(source));
+                }
+                case "ClientModInitializer" -> {
+                    return type.cast(new JSClientModInitializer(libName, modid));
+                }
+                case "DedicatedServerModInitializer" -> {
+                    return type.cast(new JSDedicatedServerModInitializer(source));
+                }
+                default -> throw new LanguageAdapterException("Can't handle initializer of type: " + type.getSimpleName());
             }
-            case "ClientModInitializer" -> {
-                return type.cast(new JSClientModInitializer(libName, modid));
-            }
-            case "DedicatedServerModInitializer" -> {
-                return type.cast(new JSDedicatedServerModInitializer(libName, modid));
-            }
-            default -> throw new LanguageAdapterException("Can't handle initializer of type: " + type.getSimpleName());
+        } catch (IOException ex) {
+            throw new LanguageAdapterException(ex);
         }
     }
 }
