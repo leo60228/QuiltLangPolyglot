@@ -7,9 +7,10 @@ import org.graalvm.polyglot.Source;
 
 public abstract class JSPolyglotInitializer {
     public final Source source;
-    public final Context polyglot = Context.create();
+    public final Context polyglot;
 
     public JSPolyglotInitializer(File sourceFile) throws IOException {
+        polyglot = Context.newBuilder("js").allowAllAccess(true).build();
         source = Source.newBuilder("js", sourceFile).build();
         polyglot.eval(source);
     }
