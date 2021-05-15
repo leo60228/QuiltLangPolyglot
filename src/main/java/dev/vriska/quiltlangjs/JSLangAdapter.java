@@ -6,9 +6,9 @@ import dev.vriska.quiltlangjs.entrypoint.JSModInitializer;
 import net.fabricmc.loader.api.LanguageAdapter;
 import net.fabricmc.loader.api.LanguageAdapterException;
 import net.fabricmc.loader.api.ModContainer;
+import java.io.File;
 
 public class JSLangAdapter implements LanguageAdapter {
-
     public static final String FILE_SUFFIX = System.getProperty("os.name").contains("Win") ? ".dll" : ".so";
 
     @Override
@@ -16,10 +16,11 @@ public class JSLangAdapter implements LanguageAdapter {
         String libName = entrypointName + FILE_SUFFIX;
         String modid = mod.getMetadata().getId();
 
-        QuiltLangJS.tryLoadJS();
+        File source = mod.getPath(entrypointName).toFile();
+
         switch (type.getSimpleName()) {
             case "ModInitializer" -> {
-                return type.cast(new JSModInitializer(libName, modid));
+                return type.cast(new JSModInitializer(source));
             }
             case "ClientModInitializer" -> {
                 return type.cast(new JSClientModInitializer(libName, modid));

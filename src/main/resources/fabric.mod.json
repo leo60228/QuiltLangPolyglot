@@ -16,6 +16,14 @@
   "languageAdapters": {
     "js": "dev.vriska.quiltlangjs.JSLangAdapter"
   },
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "js",
+        "value": "main.js"
+      }
+    ]
+  },
   "mixins": [
     "QuiltLangJS.mixins.json"
   ],
