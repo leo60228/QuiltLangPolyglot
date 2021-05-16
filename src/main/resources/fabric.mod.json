@@ -25,6 +25,10 @@
       {
         "adapter": "polyglot",
         "value": "main.py"
+      },
+      {
+        "adapter": "polyglot",
+        "value": "main.rb"
       }
     ],
     "mm:early_risers": [

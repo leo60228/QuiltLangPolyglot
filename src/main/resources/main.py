@@ -24,7 +24,7 @@ def pythonBlockHandler(self, method, proceed, args):
     if method.getName() == 'onUse':
         return onUsePythonBlock(self, *args)
     else:
-        return proeed.invoke(self, args)
+        return proceed.invoke(self, args)
 
 def onInitialize():
     blockFactory = ProxyFactory()
