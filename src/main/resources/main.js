@@ -27,7 +27,7 @@ function onInitialize() {
 
   const exampleBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4);
 
-  const EXAMPLE_BLOCK = blockFactory.create([AbstractBlock.Settings], [FabricBlockSettings.of(Material.METAL).strength(4)], (self, method, proceed, args) => {
+  const EXAMPLE_BLOCK = blockFactory.create([AbstractBlock.Settings], [exampleBlockSettings], (self, method, proceed, args) => {
     if (method.getName() === 'onUse') {
       return onUseExampleBlock(self, ...args);
     } else {

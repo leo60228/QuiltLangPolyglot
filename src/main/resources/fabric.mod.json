@@ -20,7 +20,7 @@
     "main": [
       {
         "adapter": "js",
-        "value": "main.js"
+        "value": "main.py"
       }
     ],
     "mm:early_risers": [
