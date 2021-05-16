@@ -8,16 +8,18 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 
 public abstract class JSPolyglotInitializer {
+    public final String language;
     public final Source source;
     public final Context polyglot;
 
     public JSPolyglotInitializer(File sourceFile) throws IOException {
-        polyglot = Context.newBuilder("js").allowAllAccess(true).build();
-        source = Source.newBuilder("js", sourceFile).build();
+        polyglot = Context.newBuilder().allowAllAccess(true).build();
+        language = Source.findLanguage(sourceFile);
+        source = Source.newBuilder(language, sourceFile).build();
         polyglot.eval(source);
     }
 
     public void callJS(String function) {
-        polyglot.getBindings("js").getMember(function).executeVoid();
+        polyglot.getBindings(language).getMember(function).executeVoid();
     }
 }
