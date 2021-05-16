@@ -1,7 +1,16 @@
 package dev.vriska.quiltlangjs.entrypoint;
 
-public class JSClientModInitializer {
-    public JSClientModInitializer(String libName, String modid) {
+import net.fabricmc.api.ClientModInitializer;
+import java.io.File;
+import java.io.IOException;
 
+public class JSClientModInitializer extends JSPolyglotInitializer implements ClientModInitializer {
+    public JSClientModInitializer(File source) throws IOException {
+        super(source);
+    }
+
+    @Override
+    public void onInitializeClient() {
+        callJS("onInitializeClient");
     }
 }

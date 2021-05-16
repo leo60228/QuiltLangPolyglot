@@ -15,9 +15,6 @@ public class JSLangAdapter implements LanguageAdapter {
 
     @Override
     public <T> T create(ModContainer mod, String entrypointName, Class<T> type) throws LanguageAdapterException {
-        String libName = entrypointName + FILE_SUFFIX;
-        String modid = mod.getMetadata().getId();
-
         File source = mod.getPath(entrypointName).toFile();
 
         try {
@@ -26,7 +23,7 @@ public class JSLangAdapter implements LanguageAdapter {
                     return type.cast(new JSModInitializer(source));
                 }
                 case "ClientModInitializer" -> {
-                    return type.cast(new JSClientModInitializer(libName, modid));
+                    return type.cast(new JSClientModInitializer(source));
                 }
                 case "DedicatedServerModInitializer" -> {
                     return type.cast(new JSDedicatedServerModInitializer(source));
