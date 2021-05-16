@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "quilt_lang_polyglot:block/c_block"
+    }
+  }
+}
