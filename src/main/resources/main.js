@@ -1,3 +1,5 @@
+const Block = Java.type('net.minecraft.block.Block');
+const AbstractBlock = Java.type('net.minecraft.block.AbstractBlock');
 const Material = Java.type('net.minecraft.block.Material');
 const BlockItem = Java.type('net.minecraft.item.BlockItem');
 const ItemGroup = Java.type('net.minecraft.item.ItemGroup');
@@ -7,10 +9,8 @@ const ActionResult = Java.type('net.minecraft.util.ActionResult');
 const LiteralText = Java.type('net.minecraft.text.LiteralText');
 const FabricBlockSettings = Java.type('net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings');
 const FabricItemSettings = Java.type('net.fabricmc.fabric.api.item.v1.FabricItemSettings');
-
-/*const EXAMPLE_BLOCK = newBlock(FabricBlockSettings.of(Material.METAL).strength(4), {
-  onUse: 'onUseExampleBlock'
-});
+const IncludeMethodFilter = Java.type('dev.vriska.quiltlangjs.IncludeMethodFilter');
+const ProxyFactory = Java.type('javassist.util.proxy.ProxyFactory');
 
 function onUseExampleBlock(block, state, world, pos, player, hand, hit) {
   if (!world.isClient) {
@@ -18,9 +18,23 @@ function onUseExampleBlock(block, state, world, pos, player, hand, hit) {
   }
 
   return ActionResult.SUCCESS;
-}*/
+}
 
 function onInitialize() {
-  //Registry.register(Registry.BLOCK, new Identifier('js', 'example_block'), EXAMPLE_BLOCK);
-  //Registry.register(Registry.ITEM, new Identifier('js', 'example_block'), new BlockItem(EXAMPLE_BLOCK, new FabricItemSettings().group(ItemGroup.MISC)));
+  const blockFactory = new ProxyFactory();
+  blockFactory.setSuperclass(Block);
+  blockFactory.setFilter(new IncludeMethodFilter(['onUse']));
+
+  const exampleBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4);
+
+  const EXAMPLE_BLOCK = blockFactory.create([AbstractBlock.Settings], [FabricBlockSettings.of(Material.METAL).strength(4)], (self, method, proceed, args) => {
+    if (method.getName() === 'onUse') {
+      return onUseExampleBlock(self, ...args);
+    } else {
+      return proceed.invoke(self, args);
+    }
+  });
+
+  Registry.register(Registry.BLOCK, new Identifier('js', 'example_block'), EXAMPLE_BLOCK);
+  Registry.register(Registry.ITEM, new Identifier('js', 'example_block'), new BlockItem(EXAMPLE_BLOCK, new FabricItemSettings().group(ItemGroup.MISC)));
 }

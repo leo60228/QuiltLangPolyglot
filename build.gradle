@@ -25,6 +25,7 @@ dependencies {
     modImplementation "com.github.Chocohead:Fabric-ASM:2.2"
 
     implementation "org.graalvm.sdk:graal-sdk:21.1.0"
+    implementation "org.javassist:javassist:3.28.0-GA"
 }
 
 processResources {
