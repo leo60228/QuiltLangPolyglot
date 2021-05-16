@@ -33,6 +33,10 @@
       {
         "adapter": "polyglot",
         "value": "main"
+      },
+      {
+        "adapter": "polyglot",
+        "value": "main.r"
       }
     ],
     "mm:early_risers": [
