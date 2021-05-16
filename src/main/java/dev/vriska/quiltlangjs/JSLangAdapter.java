@@ -3,6 +3,7 @@ package dev.vriska.quiltlangjs;
 import dev.vriska.quiltlangjs.entrypoint.JSClientModInitializer;
 import dev.vriska.quiltlangjs.entrypoint.JSDedicatedServerModInitializer;
 import dev.vriska.quiltlangjs.entrypoint.JSModInitializer;
+import dev.vriska.quiltlangjs.entrypoint.JSRunnable;
 import net.fabricmc.loader.api.LanguageAdapter;
 import net.fabricmc.loader.api.LanguageAdapterException;
 import net.fabricmc.loader.api.ModContainer;
@@ -29,6 +30,9 @@ public class JSLangAdapter implements LanguageAdapter {
                 }
                 case "DedicatedServerModInitializer" -> {
                     return type.cast(new JSDedicatedServerModInitializer(source));
+                }
+                case "Runnable" -> {
+                    return type.cast(new JSRunnable(source));
                 }
                 default -> throw new LanguageAdapterException("Can't handle initializer of type: " + type.getSimpleName());
             }

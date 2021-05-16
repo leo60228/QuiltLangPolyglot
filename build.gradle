@@ -12,6 +12,7 @@ group = project.maven_group
 
 repositories {
     maven { url 'https://jitpack.io' }
+    maven { url = 'https://raw.githubusercontent.com/Devan-Kerman/Devan-Repo/master/' }
 }
 
 dependencies {
@@ -20,6 +21,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:0.34.4+1.17"
+
+    modImplementation "com.github.Chocohead:Fabric-ASM:2.2"
 
     implementation "org.graalvm.sdk:graal-sdk:21.1.0"
 }

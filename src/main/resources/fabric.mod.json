@@ -22,6 +22,12 @@
         "adapter": "js",
         "value": "main.js"
       }
+    ],
+    "mm:early_risers": [
+      {
+        "adapter": "js",
+        "value": "asm.js"
+      }
     ]
   },
   "mixins": [
