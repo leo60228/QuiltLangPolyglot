@@ -1,7 +1,0 @@
-[
-  {
-    "directory": "/home/leo60228/QuiltLangPolyglot/llvm",
-    "command": "clang -fembed-bitcode -fPIC -shared -O1 -g -I /nix/store/rrz0y7ksvj1wlrva9qwdl580szm52y1l-graalvm16-ce-21.2.0-dev/languages/llvm/include main.c -o ../src/main/resources/main",
-    "file": "main.c"
-  }
-]
