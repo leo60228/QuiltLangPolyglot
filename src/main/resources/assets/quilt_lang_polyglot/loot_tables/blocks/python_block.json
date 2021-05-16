@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "js:example_block"
+          "name": "quilt_lang_polyglot:python_block"
         }
       ],
       "conditions": [

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "quilt_lang_js",
+  "id": "quilt_lang_polyglot",
   "version": "${version}",
-  "name": "Quilt Language JS",
-  "description": "JS support for modding",
+  "name": "Quilt Language Polyglot",
+  "description": "GraalVM Polyglot support for modding",
   "authors": [
     "leo60228"
   ],
@@ -11,28 +11,29 @@
     "website": "https://vriska.dev"
   },
   "license": "MIT",
-  "icon": "assets/QuiltLangJS/icon.png",
+  "icon": "assets/quilt_lang_polyglot/icon.png",
   "environment": "*",
   "languageAdapters": {
-    "js": "dev.vriska.quiltlangjs.JSLangAdapter"
+    "polyglot": "dev.vriska.quiltlangpolyglot.PolyglotLangAdapter"
   },
   "entrypoints": {
     "main": [
       {
-        "adapter": "js",
+        "adapter": "polyglot",
+        "value": "main.js"
+      },
+      {
+        "adapter": "polyglot",
         "value": "main.py"
       }
     ],
     "mm:early_risers": [
       {
-        "adapter": "js",
+        "adapter": "polyglot",
         "value": "asm.js"
       }
     ]
   },
-  "mixins": [
-    "QuiltLangJS.mixins.json"
-  ],
   "depends": {
     "fabricloader": ">=0.11.3",
     "minecraft": "1.17-alpha.21.19.a"

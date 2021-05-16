@@ -9,10 +9,10 @@ const ActionResult = Java.type('net.minecraft.util.ActionResult');
 const LiteralText = Java.type('net.minecraft.text.LiteralText');
 const FabricBlockSettings = Java.type('net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings');
 const FabricItemSettings = Java.type('net.fabricmc.fabric.api.item.v1.FabricItemSettings');
-const IncludeMethodFilter = Java.type('dev.vriska.quiltlangjs.IncludeMethodFilter');
+const IncludeMethodFilter = Java.type('dev.vriska.quiltlangpolyglot.IncludeMethodFilter');
 const ProxyFactory = Java.type('javassist.util.proxy.ProxyFactory');
 
-function onUseExampleBlock(block, state, world, pos, player, hand, hit) {
+function onUseJsBlock(block, state, world, pos, player, hand, hit) {
   if (!world.isClient) {
     player.sendMessage(new LiteralText('Hello from JS!'), false);
   }
@@ -25,16 +25,16 @@ function onInitialize() {
   blockFactory.setSuperclass(Block);
   blockFactory.setFilter(new IncludeMethodFilter(['onUse']));
 
-  const exampleBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4);
+  const jsBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4);
 
-  const EXAMPLE_BLOCK = blockFactory.create([AbstractBlock.Settings], [exampleBlockSettings], (self, method, proceed, args) => {
+  const JS_BLOCK = blockFactory.create([AbstractBlock.Settings], [jsBlockSettings], (self, method, proceed, args) => {
     if (method.getName() === 'onUse') {
-      return onUseExampleBlock(self, ...args);
+      return onUseJsBlock(self, ...args);
     } else {
       return proceed.invoke(self, args);
     }
   });
 
-  Registry.register(Registry.BLOCK, new Identifier('js', 'example_block'), EXAMPLE_BLOCK);
-  Registry.register(Registry.ITEM, new Identifier('js', 'example_block'), new BlockItem(EXAMPLE_BLOCK, new FabricItemSettings().group(ItemGroup.MISC)));
+  Registry.register(Registry.BLOCK, new Identifier('quilt_lang_polyglot', 'js_block'), JS_BLOCK);
+  Registry.register(Registry.ITEM, new Identifier('quilt_lang_polyglot', 'js_block'), new BlockItem(JS_BLOCK, new FabricItemSettings().group(ItemGroup.MISC)));
 }

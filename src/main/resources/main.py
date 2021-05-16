@@ -11,18 +11,18 @@ ActionResult = java.type('net.minecraft.util.ActionResult')
 LiteralText = java.type('net.minecraft.text.LiteralText')
 FabricBlockSettings = java.type('net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings')
 FabricItemSettings = java.type('net.fabricmc.fabric.api.item.v1.FabricItemSettings')
-IncludeMethodFilter = java.type('dev.vriska.quiltlangjs.IncludeMethodFilter')
+IncludeMethodFilter = java.type('dev.vriska.quiltlangpolyglot.IncludeMethodFilter')
 ProxyFactory = java.type('javassist.util.proxy.ProxyFactory')
 
-def onUseExampleBlock(block, state, world, pos, player, hand, hit):
+def onUsePythonBlock(block, state, world, pos, player, hand, hit):
     if not world.isClient:
         player.sendMessage(LiteralText('Hello from Python!'), False)
 
     return ActionResult.SUCCESS
 
-def exampleBlockHandler(self, method, proceed, args):
+def pythonBlockHandler(self, method, proceed, args):
     if method.getName() == 'onUse':
-        return onUseExampleBlock(self, *args)
+        return onUsePythonBlock(self, *args)
     else:
         return proeed.invoke(self, args)
 
@@ -31,9 +31,9 @@ def onInitialize():
     blockFactory.setSuperclass(Block)
     blockFactory.setFilter(IncludeMethodFilter(['onUse']))
 
-    exampleBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4)
+    pythonBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4)
 
-    EXAMPLE_BLOCK = blockFactory.create([AbstractBlock.Settings], [exampleBlockSettings], exampleBlockHandler)
+    PYTHON_BLOCK = blockFactory.create([AbstractBlock.Settings], [pythonBlockSettings], pythonBlockHandler)
 
-    Registry.register(Registry.BLOCK, Identifier('js', 'example_block'), EXAMPLE_BLOCK)
-    Registry.register(Registry.ITEM, Identifier('js', 'example_block'), BlockItem(EXAMPLE_BLOCK, FabricItemSettings().group(ItemGroup.MISC)))
+    Registry.register(Registry.BLOCK, Identifier('quilt_lang_polyglot', 'python_block'), PYTHON_BLOCK)
+    Registry.register(Registry.ITEM, Identifier('quilt_lang_polyglot', 'python_block'), BlockItem(PYTHON_BLOCK, FabricItemSettings().group(ItemGroup.MISC)))

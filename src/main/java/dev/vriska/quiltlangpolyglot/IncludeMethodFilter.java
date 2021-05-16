@@ -1,4 +1,4 @@
-package dev.vriska.quiltlangjs;
+package dev.vriska.quiltlangpolyglot;
 
 import java.lang.reflect.Method;
 import java.util.List;

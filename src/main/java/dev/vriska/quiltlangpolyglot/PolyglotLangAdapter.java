@@ -1,16 +1,16 @@
-package dev.vriska.quiltlangjs;
+package dev.vriska.quiltlangpolyglot;
 
-import dev.vriska.quiltlangjs.entrypoint.JSClientModInitializer;
-import dev.vriska.quiltlangjs.entrypoint.JSDedicatedServerModInitializer;
-import dev.vriska.quiltlangjs.entrypoint.JSModInitializer;
-import dev.vriska.quiltlangjs.entrypoint.JSRunnable;
+import dev.vriska.quiltlangpolyglot.entrypoint.PolyglotClientModInitializer;
+import dev.vriska.quiltlangpolyglot.entrypoint.PolyglotDedicatedServerModInitializer;
+import dev.vriska.quiltlangpolyglot.entrypoint.PolyglotModInitializer;
+import dev.vriska.quiltlangpolyglot.entrypoint.PolyglotRunnable;
 import net.fabricmc.loader.api.LanguageAdapter;
 import net.fabricmc.loader.api.LanguageAdapterException;
 import net.fabricmc.loader.api.ModContainer;
 import java.io.File;
 import java.io.IOException;
 
-public class JSLangAdapter implements LanguageAdapter {
+public class PolyglotLangAdapter implements LanguageAdapter {
     public static final String FILE_SUFFIX = System.getProperty("os.name").contains("Win") ? ".dll" : ".so";
 
     @Override
@@ -20,16 +20,16 @@ public class JSLangAdapter implements LanguageAdapter {
         try {
             switch (type.getSimpleName()) {
                 case "ModInitializer" -> {
-                    return type.cast(new JSModInitializer(source));
+                    return type.cast(new PolyglotModInitializer(source));
                 }
                 case "ClientModInitializer" -> {
-                    return type.cast(new JSClientModInitializer(source));
+                    return type.cast(new PolyglotClientModInitializer(source));
                 }
                 case "DedicatedServerModInitializer" -> {
-                    return type.cast(new JSDedicatedServerModInitializer(source));
+                    return type.cast(new PolyglotDedicatedServerModInitializer(source));
                 }
                 case "Runnable" -> {
-                    return type.cast(new JSRunnable(source));
+                    return type.cast(new PolyglotRunnable(source));
                 }
                 default -> throw new LanguageAdapterException("Can't handle initializer of type: " + type.getSimpleName());
             }
