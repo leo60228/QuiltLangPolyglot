@@ -4,6 +4,7 @@ import net.devtech.grossfabrichacks.instrumentation.InstrumentationApi;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.Opcodes;
 
@@ -12,7 +13,7 @@ public class GraalRemapper implements Runnable {
     static final String REMAP_CLASS_DESCRIPTOR = "(Ljava/lang/String;)Ljava/lang/String;";
     static final String HOST_OBJECT = "com/oracle/truffle/polyglot/HostObject";
     static final String GET_LOOKUP_CLASS_DESCRIPTOR = "()Ljava/lang/Class;";
-    static final String REMAP_MEMBER_DESCRIPTOR = "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/String;";
+    static final String REMAP_MEMBER_DESCRIPTOR = "(Ljava/lang/Class;Ljava/lang/String;Z)Ljava/lang/String;";
 
     @Override
     public void run() {
@@ -44,6 +45,7 @@ public class GraalRemapper implements Runnable {
                         prepended.add(new VarInsnNode(Opcodes.ALOAD, 0));
                         prepended.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, HOST_OBJECT, "getLookupClass", GET_LOOKUP_CLASS_DESCRIPTOR));
                         prepended.add(new VarInsnNode(Opcodes.ALOAD, 1));
+                        prepended.add(new InsnNode(node.name.equals("invokeMember") ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
                         prepended.add(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "remapMember", REMAP_MEMBER_DESCRIPTOR));
                         prepended.add(new VarInsnNode(Opcodes.ASTORE, 1));
                         node.instructions.insert(prepended);
@@ -60,8 +62,8 @@ public class GraalRemapper implements Runnable {
         return original.replace("PREFIX_", "");
     }
 
-    public static String remapMember(Class<?> klass, String original) {
-        System.out.println("remapMember(" + klass + ", " + original + ")");
+    public static String remapMember(Class<?> klass, String original, boolean invoke) {
+        System.out.println("remapMember(" + klass + ", " + original + ", " + invoke + ")");
         return original.replace("PREFIX_", "");
     }
 }
