@@ -23,11 +23,17 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:0.34.4+1.17"
 
     modImplementation "com.github.Chocohead:Fabric-ASM:2.2"
+    include "com.github.Chocohead:Fabric-ASM:2.2"
     modImplementation "net.devtech:grossfabrichacks:6.1"
+    include "net.devtech:grossfabrichacks:6.1"
 
     implementation "org.graalvm.sdk:graal-sdk:21.1.0"
     implementation "org.javassist:javassist:3.28.0-GA"
+    include "org.javassist:javassist:3.28.0-GA"
     implementation 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
+    include 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
+    implementation "org.apache.tika:tika-core:1.26"
+    include "org.apache.tika:tika-core:1.26"
 }
 
 processResources {
@@ -75,4 +81,8 @@ publishing {
 
     repositories {
     }
+}
+
+runClient {
+    enableAssertions = true
 }
