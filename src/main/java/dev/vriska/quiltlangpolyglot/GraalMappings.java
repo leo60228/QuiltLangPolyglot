@@ -23,6 +23,7 @@ import dev.vriska.quiltlangpolyglot.GraalRemapper.MethodLookup;
 
 public class GraalMappings {
     public static Map<String, String> classNames = null;
+    public static Map<String, String> inverseClassNames = null;
     public static Map<FieldLookup, String> fields = null;
     public static Map<MethodLookup, String> methods = null;
 
@@ -34,6 +35,7 @@ public class GraalMappings {
             mappingStream.close();
 
             classNames = new HashMap<>();
+            inverseClassNames = new HashMap<>();
 
             MappingResolver fabricResolver = FabricLoader.getInstance().getMappingResolver();
 
@@ -42,6 +44,7 @@ public class GraalMappings {
                 String intermediary = classDef.getName("intermediary").replace('/', '.');
                 String mapped = fabricResolver.mapClassName("intermediary", intermediary).replace('.', '/');
                 classNames.put(named, mapped);
+                inverseClassNames.put(mapped, named);
             }
 
             ClassMapper classMapper = new ClassMapper(classNames);
@@ -60,14 +63,9 @@ public class GraalMappings {
 
                     String fieldMapped = fabricResolver.mapFieldName("intermediary", classIntermediary, fieldIntermediary, fieldDescIntermediary);
 
-                    FieldLookup lookup = new FieldLookup(classMapped, fieldNamed);
+                    FieldLookup lookup = new FieldLookup(classMapped, fieldMapped);
 
-                    if (fieldNamed.equals("METAL")) {
-                        System.out.println(lookup);
-                        System.out.println(lookup.hashCode());
-                    }
-
-                    fields.put(lookup, fieldMapped);
+                    fields.put(lookup, fieldNamed);
                 }
 
                 for (MethodDef methodDef : classDef.getMethods()) {

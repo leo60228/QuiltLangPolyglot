@@ -23,16 +23,12 @@ end
 def onInitialize()
     blockFactory = ProxyFactory.new
     blockFactory.setSuperclass Block
-    blockFactory.setFilter IncludeMethodFilter.new(['onUse'])
+    blockFactory.setFilter IncludeMethodFilter.new(Block, ['onUse'])
 
     rubyBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4)
 
     rubyBlock = blockFactory.create([AbstractBlock.Settings], [rubyBlockSettings]) do |this, method, proceed, args|
-        if method.getName == 'onUse' then
-            onUseRubyBlock(this, *args)
-        else
-            proceed.invoke self, args
-        end
+        onUseRubyBlock(this, *args)
     end
 
     Registry.register Registry.BLOCK, Identifier.new('quilt_lang_polyglot', 'ruby_block'), rubyBlock

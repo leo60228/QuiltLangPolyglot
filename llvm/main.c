@@ -1,6 +1,5 @@
 #include <graalvm/llvm/polyglot.h>
 #include <stdbool.h>
-#include <string.h>
 
 void* Block;
 void* AbstractBlockSettings;
@@ -39,22 +38,13 @@ void* onUseCBlock(void* block, void* state, void* world, void* pos, void* player
 }
 
 void* cBlockHandler(void* self, void* method, void* proceed, void* args) {
-    void* javaName = polyglot_invoke(method, "getName");
-
-    char name[16];
-    uint64_t len = polyglot_as_string(javaName, name, sizeof(name), "UTF-8");
-
-    if (len == 5 && strcmp(name, "onUse") == 0) {
-        void* state = polyglot_get_array_element(args, 0);
-        void* world = polyglot_get_array_element(args, 1);
-        void* pos = polyglot_get_array_element(args, 2);
-        void* player = polyglot_get_array_element(args, 3);
-        void* hand = polyglot_get_array_element(args, 4);
-        void* hit = polyglot_get_array_element(args, 5);
-        return onUseCBlock(self, state, world, pos, player, hand, hit);
-    } else {
-        return polyglot_invoke(proceed, "invoke", args);
-    }
+    void* state = polyglot_get_array_element(args, 0);
+    void* world = polyglot_get_array_element(args, 1);
+    void* pos = polyglot_get_array_element(args, 2);
+    void* player = polyglot_get_array_element(args, 3);
+    void* hand = polyglot_get_array_element(args, 4);
+    void* hit = polyglot_get_array_element(args, 5);
+    return onUseCBlock(self, state, world, pos, player, hand, hit);
 }
 
 void onInitialize() {
@@ -84,7 +74,7 @@ void onInitialize() {
     void* onUse = polyglot_from_string("onUse", "UTF-8");
     polyglot_invoke(filteredMethods, "add", onUse);
 
-    void* methodFilter = polyglot_new_instance(IncludeMethodFilter, filteredMethods);
+    void* methodFilter = polyglot_new_instance(IncludeMethodFilter, Block, filteredMethods);
     polyglot_invoke(blockFactory, "setFilter", methodFilter);
 
     void* metal = polyglot_get_member(Material, "METAL");

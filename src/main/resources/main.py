@@ -21,15 +21,12 @@ def onUsePythonBlock(block, state, world, pos, player, hand, hit):
     return ActionResult.SUCCESS
 
 def pythonBlockHandler(self, method, proceed, args):
-    if method.getName() == 'onUse':
-        return onUsePythonBlock(self, *args)
-    else:
-        return proceed.invoke(self, args)
+    return onUsePythonBlock(self, *args)
 
 def onInitialize():
     blockFactory = ProxyFactory()
     blockFactory.setSuperclass(Block)
-    blockFactory.setFilter(IncludeMethodFilter(['onUse']))
+    blockFactory.setFilter(IncludeMethodFilter(Block, ['onUse']))
 
     pythonBlockSettings = FabricBlockSettings.of(Material.METAL).strength(4)
 

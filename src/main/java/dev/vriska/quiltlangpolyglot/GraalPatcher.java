@@ -20,10 +20,10 @@ public class GraalPatcher implements Runnable {
     static final String FIELD_LOOKUP = "dev/vriska/quiltlangpolyglot/GraalRemapper$FieldLookup";
     static final String METHOD_LOOKUP = "dev/vriska/quiltlangpolyglot/GraalRemapper$MethodLookup";
     static final String REMAP_CLASS_DESCRIPTOR = "(Ljava/lang/String;)Ljava/lang/String;";
-    static final String HOST_OBJECT = "com/oracle/truffle/polyglot/HostObject";
-    static final String GET_LOOKUP_CLASS_DESCRIPTOR = "()Ljava/lang/Class;";
-    static final String REMAP_MEMBER_DESCRIPTOR = "(Ljava/lang/Class;Ljava/lang/String;Z)Ljava/lang/String;";
+    static final String GET_CLASS_NAME_DESCRIPTOR = "(Ljava/lang/Class;)Ljava/lang/String;";
+    static final String REMAP_FIELD_DESCRIPTOR = "(Ljava/lang/reflect/Field;)Ljava/lang/String;";
     static final String REMAP_METHOD_DESCRIPTOR = "(Ljava/lang/reflect/Method;)Ljava/lang/String;";
+    static final String FIND_INNER_CLASS_DESCRIPTOR = "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Class;";
 
     @Override
     public void run() {
@@ -53,21 +53,30 @@ public class GraalPatcher implements Runnable {
                 }
             });
 
-            Class<?> hostObject = Class.forName("com.oracle.truffle.polyglot.HostObject");
-            System.out.println(hostObject);
-            InstrumentationApi.retransform(hostObject, (s, b) -> {
+            Class<?> hostInteropReflect = Class.forName("com.oracle.truffle.polyglot.HostInteropReflect");
+            System.out.println(hostInteropReflect);
+            InstrumentationApi.retransform(hostInteropReflect, (s, b) -> {
                 for (MethodNode node : b.methods) {
-                    if (node.name.equals("readMember") || node.name.equals("invokeMember")) {
+                    if (node.name.equals("findInnerClass")) {
                         System.out.println("patching " + node.name);
 
-                        InsnList prepended = new InsnList();
-                        prepended.add(new VarInsnNode(Opcodes.ALOAD, 0));
-                        prepended.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, HOST_OBJECT, "getLookupClass", GET_LOOKUP_CLASS_DESCRIPTOR));
-                        prepended.add(new VarInsnNode(Opcodes.ALOAD, 1));
-                        prepended.add(new InsnNode(node.name.equals("invokeMember") ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
-                        prepended.add(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "remapMember", REMAP_MEMBER_DESCRIPTOR));
-                        prepended.add(new VarInsnNode(Opcodes.ASTORE, 1));
-                        node.instructions.insert(prepended);
+                        node.instructions.clear();
+                        node.visitVarInsn(Opcodes.ALOAD, 0);
+                        node.visitVarInsn(Opcodes.ALOAD, 1);
+                        node.visitMethodInsn(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "findInnerClass", FIND_INNER_CLASS_DESCRIPTOR, false);
+                        node.visitInsn(Opcodes.ARETURN);
+                    } else if (node.name.equals("toNameAndSignature")) {
+                        System.out.println("patching " + node.name);
+
+                        ListIterator<AbstractInsnNode> iter = node.instructions.iterator();
+                        while (iter.hasNext()) {
+                            AbstractInsnNode insn = iter.next();
+
+                            if (insn instanceof MethodInsnNode call && call.name.equals("getTypeName")) {
+                                System.out.println(call);
+                                iter.set(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "getClassName", GET_CLASS_NAME_DESCRIPTOR));
+                            }
+                        }
                     }
                 }
             });
@@ -76,8 +85,8 @@ public class GraalPatcher implements Runnable {
             System.out.println(members);
             InstrumentationApi.retransform(members, (s, b) -> {
                 for (MethodNode node : b.methods) {
-                    if (node.name.equals("putMethod")) {
-                        System.out.println("patching");
+                    if (node.name.equals("putMethod") || node.name.equals("collectPublicFields") || node.name.equals("collectPublicInstanceFields")) {
+                        System.out.println("patching " + node.name);
 
                         ListIterator<AbstractInsnNode> iter = node.instructions.iterator();
                         while (iter.hasNext()) {
@@ -85,7 +94,11 @@ public class GraalPatcher implements Runnable {
 
                             if (insn instanceof MethodInsnNode call && call.name.equals("getName")) {
                                 System.out.println(call);
-                                iter.set(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "remapMethod", REMAP_METHOD_DESCRIPTOR));
+                                if (node.name.equals("putMethod")) {
+                                    iter.set(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "remapMethod", REMAP_METHOD_DESCRIPTOR));
+                                } else {
+                                    iter.set(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "remapField", REMAP_FIELD_DESCRIPTOR));
+                                }
                             }
                         }
                     }

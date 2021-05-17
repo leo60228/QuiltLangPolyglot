@@ -4,15 +4,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 import javassist.util.proxy.MethodFilter;
 
-public class IncludeMethodFilter implements MethodFilter {
-    List<String> methods;
-
-    public IncludeMethodFilter(List<String> methods) {
-        this.methods = methods;
-    }
-
+public record IncludeMethodFilter(Class<?> target, List<String> methods) implements MethodFilter {
     @Override
     public boolean isHandled(Method method) {
-        return methods.contains(method.getName());
+        String mapped = GraalRemapper.remapMethod(method);
+        return methods.contains(mapped);
     }
 }

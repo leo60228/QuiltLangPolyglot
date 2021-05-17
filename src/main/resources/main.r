@@ -24,11 +24,7 @@ onUseRBlock <- function(block, state, world, pos, player, hand, hit) {
 }
 
 rBlockHandler <- function(self, method, proceed, args) {
-    if (method$getName() == "onUse") {
-        return(do.call(onUseRBlock, as.list(c(self, args))))
-    } else {
-        return(proceed$invoke(self, args))
-    }
+    return(do.call(onUseRBlock, as.list(c(self, args))))
 }
 
 onInitialize <- function() {
@@ -37,7 +33,7 @@ onInitialize <- function() {
 
     filteredMethods <- new(ArrayList, 1)
     filteredMethods$add("onUse")
-    blockFactory$setFilter(new(IncludeMethodFilter, filteredMethods))
+    blockFactory$setFilter(new(IncludeMethodFilter, Block$class, filteredMethods))
 
     rBlockSettings <- FabricBlockSettings$of(Material$METAL)$strength(4)
 
