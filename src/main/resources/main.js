@@ -13,8 +13,8 @@ const IncludeMethodFilter = Java.type('dev.vriska.quiltlangpolyglot.IncludeMetho
 const ProxyFactory = Java.type('javassist.util.proxy.ProxyFactory');
 
 function onUseJsBlock(block, state, world, pos, player, hand, hit) {
-  if (!world.PREFIX_isClient) {
-    player.PREFIX_sendMessage(new LiteralText('Hello from JS!'), false);
+  if (!world.isClient) {
+    player.sendMessage(new LiteralText('Hello from JS!'), false);
   }
 
   return ActionResult.SUCCESS;

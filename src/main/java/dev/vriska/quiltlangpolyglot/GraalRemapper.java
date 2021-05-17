@@ -5,8 +5,10 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -14,9 +16,15 @@ import java.io.IOError;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ListIterator;
+import java.lang.reflect.Method;
 import net.fabricmc.mapping.tree.TinyMappingFactory;
 import net.fabricmc.mapping.tree.TinyTree;
 import net.fabricmc.mapping.tree.ClassDef;
+import net.fabricmc.mapping.tree.FieldDef;
+import net.fabricmc.mapping.tree.MethodDef;
+import net.fabricmc.mapping.util.EntryTriple;
+import net.fabricmc.mapping.util.ClassMapper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 
@@ -26,8 +34,12 @@ public class GraalRemapper implements Runnable {
     static final String HOST_OBJECT = "com/oracle/truffle/polyglot/HostObject";
     static final String GET_LOOKUP_CLASS_DESCRIPTOR = "()Ljava/lang/Class;";
     static final String REMAP_MEMBER_DESCRIPTOR = "(Ljava/lang/Class;Ljava/lang/String;Z)Ljava/lang/String;";
+    static final String REMAP_METHOD_DESCRIPTOR = "(Ljava/lang/reflect/Method;)Ljava/lang/String;";
 
     public static Map<String, String> classNames = null;
+    public static Map<String, String> inverseClassNames = null;
+    public static Map<EntryTriple, String> fields = null;
+    public static Map<EntryTriple, String> methods = null;
 
     public static void loadMappings() {
         try {
@@ -37,11 +49,57 @@ public class GraalRemapper implements Runnable {
             mappingStream.close();
 
             classNames = new HashMap<>();
+            inverseClassNames = new HashMap<>();
+
+            MappingResolver fabricResolver = FabricLoader.getInstance().getMappingResolver();
 
             for (ClassDef classDef : mappings.getClasses()) {
-                String named = classDef.getName("named").replace('/', '.');
+                String named = classDef.getName("named");
                 String intermediary = classDef.getName("intermediary").replace('/', '.');
-                classNames.put(named, intermediary);
+                String mapped = fabricResolver.mapClassName("intermediary", intermediary).replace('.', '/');
+                classNames.put(named, mapped);
+                inverseClassNames.put(mapped, named);
+            }
+
+            ClassMapper classMapper = new ClassMapper(classNames);
+            fields = new HashMap<>();
+            methods = new HashMap<>();
+
+            for (ClassDef classDef : mappings.getClasses()) {
+                String classNamed = classDef.getName("named");
+                String classIntermediary = classDef.getName("intermediary").replace('/', '.');
+                String classMapped = classNames.get(classNamed);
+                for (FieldDef fieldDef : classDef.getFields()) {
+                    String fieldNamed = fieldDef.getName("named");
+
+                    String fieldIntermediary = fieldDef.getName("intermediary");
+                    String fieldDescIntermediary = fieldDef.getDescriptor("intermediary");
+
+                    String fieldMapped = fabricResolver.mapFieldName("intermediary", classIntermediary, fieldIntermediary, fieldDescIntermediary);
+
+                    EntryTriple lookup = new EntryTriple(classMapped, fieldNamed, "");
+
+                    fields.put(lookup, fieldMapped);
+                }
+
+                for (MethodDef methodDef : classDef.getMethods()) {
+                    String methodNamed = methodDef.getName("named");
+                    String methodDescNamed = methodDef.getDescriptor("named");
+
+                    String methodIntermediary = methodDef.getName("intermediary");
+                    String methodDescIntermediary = methodDef.getDescriptor("intermediary");
+
+                    String methodMapped = fabricResolver.mapMethodName("intermediary", classIntermediary, methodIntermediary, methodDescIntermediary);
+
+                    EntryTriple named = new EntryTriple(classNamed, methodNamed, methodDescNamed);
+                    EntryTriple mapped = named.map(classMapper, methodMapped);
+
+                    if (methodNamed.equals("register")) {
+                        System.out.println(mapped);
+                    }
+
+                    methods.put(mapped, methodNamed);
+                }
             }
         } catch (IOException ex) {
             throw new IOError(ex);
@@ -85,35 +143,84 @@ public class GraalRemapper implements Runnable {
                     }
                 }
             });
+
+            Class<?> members = Class.forName("com.oracle.truffle.polyglot.HostClassDesc$Members");
+            System.out.println(members);
+            InstrumentationApi.retransform(members, (s, b) -> {
+                for (MethodNode node : b.methods) {
+                    if (node.name.equals("putMethod")) {
+                        System.out.println("patching");
+
+                        ListIterator<AbstractInsnNode> iter = node.instructions.iterator();
+                        while (iter.hasNext()) {
+                            AbstractInsnNode insn = iter.next();
+
+                            if (insn instanceof MethodInsnNode call && call.name.equals("getName")) {
+                                System.out.println(call);
+                                iter.set(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAAL_REMAPPER, "remapMethod", REMAP_METHOD_DESCRIPTOR));
+                            }
+                        }
+                    }
+                }
+            });
         } catch (ClassNotFoundException ex) {
             throw new IllegalStateException(ex);
         }
     }
 
     public static String remapClass(String original) {
-        System.out.println("remapClass(" + original + ")");
+        try {
+            System.out.println("remapClass(" + original + ")");
 
-        if (classNames == null) loadMappings();
+            if (classNames == null) loadMappings();
 
-        String mapped = original;
-
-        if (classNames.containsKey(original)) {
-            String intermediary = classNames.getOrDefault(original, original);
-            System.out.println("intermediary: " + intermediary);
-
-            MappingResolver fabricResolver = FabricLoader.getInstance().getMappingResolver();
-            mapped = fabricResolver.mapClassName("intermediary", intermediary);
+            String binary = original.replace('.', '/');
+            String mapped = classNames.getOrDefault(binary, original).replace('/', '.');
 
             System.out.println("mapped to: " + mapped);
-        } else {
-            System.out.println("not in mappings");
-        }
 
-        return mapped;
+            return mapped;
+        } catch (Exception ex) {
+            ex.printStackTrace(System.out);
+            throw ex;
+        }
     }
 
     public static String remapMember(Class<?> klass, String original, boolean invoke) {
         System.out.println("remapMember(" + klass + ", " + original + ", " + invoke + ")");
-        return original.replace("PREFIX_", "");
+
+        if (fields == null) loadMappings();
+
+        EntryTriple lookup = new EntryTriple(Type.getInternalName(klass), original, "");
+        System.out.println(lookup);
+
+        if (fields.containsKey(lookup)) {
+            String mapped = fields.get(lookup);
+            System.out.println("mapped: " + mapped);
+            return mapped;
+        } else {
+            System.out.println("not in mappings");
+            return original;
+        }
+    }
+
+    public static String remapMethod(Method method) {
+        System.out.printf("remapMethod(%s)\n", method);
+
+        String className = Type.getInternalName(method.getDeclaringClass());
+        String methodName = method.getName();
+        String methodDesc = Type.getMethodDescriptor(method);
+
+        EntryTriple lookup = new EntryTriple(className, methodName, methodDesc);
+        System.out.println(lookup);
+
+        if (methods.containsKey(lookup)) {
+            String mapped = methods.get(lookup);
+            System.out.println("mapped: " + mapped);
+            return mapped;
+        } else {
+            System.out.println("not in mappings");
+            return methodName;
+        }
     }
 }
