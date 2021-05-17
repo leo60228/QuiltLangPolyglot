@@ -7,7 +7,7 @@ import dev.vriska.quiltlangpolyglot.entrypoint.PolyglotRunnable;
 import net.fabricmc.loader.api.LanguageAdapter;
 import net.fabricmc.loader.api.LanguageAdapterException;
 import net.fabricmc.loader.api.ModContainer;
-import java.io.File;
+import java.nio.file.Path;
 import java.io.IOException;
 
 public class PolyglotLangAdapter implements LanguageAdapter {
@@ -15,7 +15,7 @@ public class PolyglotLangAdapter implements LanguageAdapter {
 
     @Override
     public <T> T create(ModContainer mod, String entrypointName, Class<T> type) throws LanguageAdapterException {
-        File source = mod.getPath(entrypointName).toFile();
+        Path source = mod.getPath(entrypointName);
 
         try {
             switch (type.getSimpleName()) {

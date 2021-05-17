@@ -1,11 +1,11 @@
 package dev.vriska.quiltlangpolyglot.entrypoint;
 
 import net.fabricmc.api.ClientModInitializer;
-import java.io.File;
+import java.nio.file.Path;
 import java.io.IOException;
 
 public class PolyglotClientModInitializer extends PolyglotInitializer implements ClientModInitializer {
-    public PolyglotClientModInitializer(File source) throws IOException {
+    public PolyglotClientModInitializer(Path source) throws IOException {
         super(source);
     }
 
