@@ -40,6 +40,7 @@
       }
     ],
     "mm:early_risers": [
+      "dev.vriska.quiltlangpolyglot.GraalRemapper",
       {
         "adapter": "polyglot",
         "value": "asm.js"

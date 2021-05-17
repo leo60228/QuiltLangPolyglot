@@ -6,15 +6,15 @@ const ItemGroup = Java.type('net.minecraft.item.ItemGroup');
 const Registry = Java.type('net.minecraft.util.registry.Registry');
 const Identifier = Java.type('net.minecraft.util.Identifier');
 const ActionResult = Java.type('net.minecraft.util.ActionResult');
-const LiteralText = Java.type('net.minecraft.text.LiteralText');
+const LiteralText = Java.type('net.PREFIX_minecraft.text.LiteralText');
 const FabricBlockSettings = Java.type('net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings');
 const FabricItemSettings = Java.type('net.fabricmc.fabric.api.item.v1.FabricItemSettings');
 const IncludeMethodFilter = Java.type('dev.vriska.quiltlangpolyglot.IncludeMethodFilter');
 const ProxyFactory = Java.type('javassist.util.proxy.ProxyFactory');
 
 function onUseJsBlock(block, state, world, pos, player, hand, hit) {
-  if (!world.isClient) {
-    player.sendMessage(new LiteralText('Hello from JS!'), false);
+  if (!world.PREFIX_isClient) {
+    player.PREFIX_sendMessage(new LiteralText('Hello from JS!'), false);
   }
 
   return ActionResult.SUCCESS;

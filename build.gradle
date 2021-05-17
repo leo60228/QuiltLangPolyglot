@@ -23,6 +23,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:0.34.4+1.17"
 
     modImplementation "com.github.Chocohead:Fabric-ASM:2.2"
+    modImplementation "net.devtech:grossfabrichacks:6.1"
 
     implementation "org.graalvm.sdk:graal-sdk:21.1.0"
     implementation "org.javassist:javassist:3.28.0-GA"
