@@ -7,6 +7,18 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.Opcodes;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOError;
+import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
+import net.fabricmc.mapping.tree.TinyMappingFactory;
+import net.fabricmc.mapping.tree.TinyTree;
+import net.fabricmc.mapping.tree.ClassDef;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.MappingResolver;
 
 public class GraalRemapper implements Runnable {
     static final String GRAAL_REMAPPER = "dev/vriska/quiltlangpolyglot/GraalRemapper";
@@ -14,6 +26,27 @@ public class GraalRemapper implements Runnable {
     static final String HOST_OBJECT = "com/oracle/truffle/polyglot/HostObject";
     static final String GET_LOOKUP_CLASS_DESCRIPTOR = "()Ljava/lang/Class;";
     static final String REMAP_MEMBER_DESCRIPTOR = "(Ljava/lang/Class;Ljava/lang/String;Z)Ljava/lang/String;";
+
+    public static Map<String, String> classNames = null;
+
+    public static void loadMappings() {
+        try {
+            InputStream mappingStream = GraalRemapper.class.getResourceAsStream("/mappings.tiny");
+            BufferedReader mappingReader = new BufferedReader(new InputStreamReader(mappingStream));
+            TinyTree mappings = TinyMappingFactory.loadWithDetection(mappingReader);
+            mappingStream.close();
+
+            classNames = new HashMap<>();
+
+            for (ClassDef classDef : mappings.getClasses()) {
+                String named = classDef.getName("named").replace('/', '.');
+                String intermediary = classDef.getName("intermediary").replace('/', '.');
+                classNames.put(named, intermediary);
+            }
+        } catch (IOException ex) {
+            throw new IOError(ex);
+        }
+    }
 
     @Override
     public void run() {
@@ -59,7 +92,24 @@ public class GraalRemapper implements Runnable {
 
     public static String remapClass(String original) {
         System.out.println("remapClass(" + original + ")");
-        return original.replace("PREFIX_", "");
+
+        if (classNames == null) loadMappings();
+
+        String mapped = original;
+
+        if (classNames.containsKey(original)) {
+            String intermediary = classNames.getOrDefault(original, original);
+            System.out.println("intermediary: " + intermediary);
+
+            MappingResolver fabricResolver = FabricLoader.getInstance().getMappingResolver();
+            mapped = fabricResolver.mapClassName("intermediary", intermediary);
+
+            System.out.println("mapped to: " + mapped);
+        } else {
+            System.out.println("not in mappings");
+        }
+
+        return mapped;
     }
 
     public static String remapMember(Class<?> klass, String original, boolean invoke) {
